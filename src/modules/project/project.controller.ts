@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -23,8 +24,12 @@ import {
   ApiNotFoundResponse,
   ApiUnauthorizedResponse,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
-import { ProjectResponseDto } from './dto/project-response.dto';
+import {
+  PaginatedProjectResponseDto,
+  ProjectResponseDto,
+} from './dto/project-response.dto';
 
 @ApiTags('Projects')
 @ApiBearerAuth()
@@ -47,6 +52,28 @@ export class ProjectController {
     return this.projectService.createProject(createProjectDto, req.user);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'Get all projects of current user' })
+  @ApiOkResponse({
+    description: 'Paginated list of user projects',
+    type: PaginatedProjectResponseDto,
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  async getAll(
+    @Req() req: RequestWithUser,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ) {
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    return this.projectService.getAllProjects(
+      req.user.id,
+      pageNumber,
+      limitNumber,
+    );
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update current project' })
   @ApiOkResponse({
@@ -66,17 +93,6 @@ export class ProjectController {
     @Req() req: RequestWithUser,
   ) {
     return this.projectService.updateProject(projectId, req.user.id);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all projects of current user' })
-  @ApiOkResponse({
-    description: 'List of user projects',
-    type: ProjectResponseDto,
-    isArray: true,
-  })
-  async getAll(@Req() req: RequestWithUser) {
-    return this.projectService.getAllProjects(req.user.id);
   }
 
   @Delete(':id')

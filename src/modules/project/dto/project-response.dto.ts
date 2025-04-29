@@ -72,3 +72,17 @@ export class ProjectResponseDto {
   })
   updatedAt: Date;
 }
+
+export class PaginatedProjectResponseDto {
+  @ApiProperty({ type: [ProjectResponseDto] })
+  data: ProjectResponseDto[];
+
+  @ApiProperty({ example: 20, description: 'Total number of projects' })
+  total: number;
+
+  @ApiProperty({ example: 1, description: 'Current page number' })
+  page: number;
+
+  @ApiProperty({ example: 10, description: 'Number of items per page' })
+  limit: number;
+}

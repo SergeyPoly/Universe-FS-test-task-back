@@ -16,7 +16,10 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../user/user.entity';
 import { AxiosResponse } from 'axios';
 import { GithubDataDto } from './dto/githab-data.dto';
-import { ProjectResponseDto } from './dto/project-response.dto';
+import {
+  PaginatedProjectResponseDto,
+  ProjectResponseDto,
+} from './dto/project-response.dto';
 
 @Injectable()
 export class ProjectService {
@@ -69,17 +72,25 @@ export class ProjectService {
     });
   }
 
-  async getAllProjects(userId: string): Promise<ProjectResponseDto[]> {
-    const projects = await this.projectRepository.find({
+  async getAllProjects(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedProjectResponseDto> {
+    const [projects, total] = await this.projectRepository.findAndCount({
       where: { user: { id: userId } },
       order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return projects.map((project) =>
+    const data = projects.map((project) =>
       plainToInstance(ProjectResponseDto, project, {
         excludeExtraneousValues: true,
       }),
     );
+
+    return { data, total, page, limit };
   }
 
   async deleteProject(
