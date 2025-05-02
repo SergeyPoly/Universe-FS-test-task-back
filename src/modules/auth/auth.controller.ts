@@ -1,8 +1,19 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import RequestWithUser from 'src/modules/auth/types/request-with-user.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -30,5 +41,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: AuthDto): Promise<AuthResponseDto> {
     return this.authService.login(loginDto);
+  }
+
+  @UseGuards(AuthGuard())
+  @Get('me')
+  getProfile(@Req() req: RequestWithUser) {
+    return req.user;
   }
 }

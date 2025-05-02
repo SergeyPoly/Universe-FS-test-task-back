@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserResponseDto } from 'src/modules/user/dto/user-response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -20,7 +22,13 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async findById(id: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+  async findById(id: string): Promise<UserResponseDto | null> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (user) {
+      return plainToInstance(UserResponseDto, user, {
+        excludeExtraneousValues: true,
+      });
+    }
+    return null;
   }
 }

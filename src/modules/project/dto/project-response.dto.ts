@@ -75,7 +75,7 @@ export class ProjectResponseDto {
 
 export class PaginatedProjectResponseDto {
   @ApiProperty({ type: [ProjectResponseDto] })
-  data: ProjectResponseDto[];
+  projects: ProjectResponseDto[];
 
   @ApiProperty({ example: 20, description: 'Total number of projects' })
   total: number;

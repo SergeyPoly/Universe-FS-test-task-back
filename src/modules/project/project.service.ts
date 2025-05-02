@@ -90,7 +90,7 @@ export class ProjectService {
       }),
     );
 
-    return { data, total, page, limit };
+    return { projects: data, total, page, limit };
   }
 
   async deleteProject(
